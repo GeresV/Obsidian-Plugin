@@ -59,7 +59,10 @@ export async function fetchDeltaTasks(
 	listId: string,
 	deltaLink: string | null
 ): Promise<{ tasks: GraphTask[]; deltaLink: string }> {
-	let url = deltaLink ?? `${GRAPH_BASE}/me/todo/lists/${encodeURIComponent(listId)}/tasks/delta?$top=100`;
+	// Note: deliberately no $top here - Microsoft Graph's todo tasks delta endpoint
+	// throws a misleading "Skip token is not provided" 400 error when $top is combined
+	// with pagination on this endpoint. Omitting it lets Graph use its own default page size.
+	let url = deltaLink ?? `${GRAPH_BASE}/me/todo/lists/${encodeURIComponent(listId)}/tasks/delta`;
 	const tasks: GraphTask[] = [];
 	let finalDeltaLink = "";
 
