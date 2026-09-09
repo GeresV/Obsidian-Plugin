@@ -69,6 +69,12 @@ async function loadFile(app: App, notePath: string): Promise<TFile> {
  * Finds the [start, end) line range of the managed section within `lines`.
  * When `heading` is empty, the whole file is treated as the section.
  * If the heading doesn't exist yet, it is appended to `lines` (mutating the array).
+ *
+ * The anchor line is usually a Markdown heading ("## Microsoft To Do"), whose nesting
+ * level tells us exactly where the section ends (the next heading of equal-or-higher
+ * level). Anything else - a callout header like "> [!todo]- Microsoft To Do", or plain
+ * text - has no such nesting concept, so for those the section instead ends at the next
+ * blank line, matching how Obsidian itself stops rendering a callout/blockquote there.
  */
 function locateSection(lines: string[], heading: string): { start: number; end: number } {
 	const trimmedHeading = heading.trim();
@@ -76,6 +82,7 @@ function locateSection(lines: string[], heading: string): { start: number; end: 
 		return { start: 0, end: lines.length };
 	}
 	const headingLevelMatch = trimmedHeading.match(HEADING_RE);
+	const isAtxHeading = headingLevelMatch !== null;
 	const headingLevel = headingLevelMatch ? headingLevelMatch[1].length : 1;
 
 	let headingIdx = lines.findIndex((l) => l.trim() === trimmedHeading);
@@ -89,6 +96,10 @@ function locateSection(lines: string[], heading: string): { start: number; end: 
 
 	let end = lines.length;
 	for (let i = headingIdx + 1; i < lines.length; i++) {
+		if (!isAtxHeading && lines[i].trim() === "") {
+			end = i;
+			break;
+		}
 		const m = lines[i].match(HEADING_RE);
 		if (m && m[1].length <= headingLevel) {
 			end = i;
