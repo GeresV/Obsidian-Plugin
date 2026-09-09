@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to release, e.g. v1.0.0"
+        required: true
+        default: "v1.0.0"
 
 permissions:
   contents: write
@@ -30,7 +36,7 @@ jobs:
       - name: GitHub Release erstellen
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
           files: |
             main.js
             manifest.json
