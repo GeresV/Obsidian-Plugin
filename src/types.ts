@@ -21,6 +21,8 @@ export interface TodoSyncSettings {
 	taskListId: string;
 	taskListName: string;
 	onRemoteDelete: RemoteDeleteBehavior;
+	/** Completed tasks are kept synced in the background but not written into the note */
+	hideCompletedTasks: boolean;
 	/** 0 disables the automatic timer, sync is still available via command/ribbon */
 	autoSyncMinutes: number;
 	deltaLink: string | null;
@@ -37,6 +39,7 @@ export const DEFAULT_SETTINGS: TodoSyncSettings = {
 	taskListId: "",
 	taskListName: "",
 	onRemoteDelete: "remove",
+	hideCompletedTasks: false,
 	autoSyncMinutes: 0,
 	deltaLink: null,
 	taskCache: {},

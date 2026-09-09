@@ -203,8 +203,11 @@ export async function performSync(
 	}
 
 	// Lines whose id used to exist but is no longer present in the note = user deleted them locally.
+	// Exception: a completed task that's hidden by `hideCompletedTasks` is also absent from the
+	// note on purpose - that's not a deletion, so leave the remote task alone.
 	for (const id of idsInCacheBefore) {
-		if (!localById.has(id) && !idsHandledByRemoteChange.has(id)) {
+		const hiddenCompleted = settings.hideCompletedTasks && cache[id]?.checked === true;
+		if (!localById.has(id) && !idsHandledByRemoteChange.has(id) && !hiddenCompleted) {
 			try {
 				await deleteTask(token, settings.taskListId, id);
 				result.deletedRemote++;
@@ -236,10 +239,22 @@ export async function performSync(
 		}
 	}
 
+	// Completed tasks stay synced (title/status kept up to date above) but are left out of the
+	// note itself - they're still tracked via `cache` so re-opening them later brings them back.
+	if (settings.hideCompletedTasks) {
+		entries.forEach((entry, i) => {
+			if (entry.type === "task" && entry.checked) entryIndicesToRemove.add(i);
+		});
+	}
+
 	const newSectionLines = entries
 		.filter((_, i) => !entryIndicesToRemove.has(i))
 		.map(renderEntry)
-		.concat(newEntriesFromRemote.map(renderEntry));
+		.concat(
+			newEntriesFromRemote
+				.filter((entry) => !(settings.hideCompletedTasks && entry.checked))
+				.map(renderEntry)
+		);
 
 	const newLines = [...lines.slice(0, start), ...newSectionLines, ...lines.slice(end)];
 	const newContent = newLines.join("\n");

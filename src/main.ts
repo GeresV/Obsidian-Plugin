@@ -323,6 +323,18 @@ class TodoSyncSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName("Erledigte Aufgaben ausblenden")
+			.setDesc(
+				"Nur ausstehende Aufgaben werden in der Notiz angezeigt. Erledigte Aufgaben bleiben im Hintergrund mit Microsoft To Do synchronisiert, tauchen aber nicht mehr als Zeile auf."
+			)
+			.addToggle((toggle) =>
+				toggle.setValue(settings.hideCompletedTasks).onChange(async (value) => {
+					settings.hideCompletedTasks = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		new Setting(containerEl)
 			.setName("Automatisch synchronisieren (Minuten)")
 			.setDesc("0 = deaktiviert, dann nur manuell über Befehl/Symbol.")
 			.addText((text) =>

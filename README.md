@@ -41,7 +41,8 @@ Das war's – ein Admin-Consent ist für diese Berechtigungen nicht nötig, du b
 6. Auf **„Listen laden“** klicken und im Dropdown deine gewünschte Microsoft-To-Do-Liste auswählen (z. B. „Aufgaben“).
 7. Optional anpassen:
    - **Notiz**: Pfad zur Notiz, z. B. `To Do.md`.
-   - **Überschrift**: Nur der Abschnitt unter dieser Überschrift wird synchronisiert (Standard: `## Microsoft To Do`). Leer lassen, um die ganze Notiz zu verwenden.
+   - **Überschrift**: Nur der Abschnitt unter dieser Überschrift wird synchronisiert (Standard: `## Microsoft To Do`). Leer lassen, um die ganze Notiz zu verwenden. Funktioniert auch mit einem Obsidian-Callout statt einer `#`-Überschrift, z. B. `> [!todo]- Microsoft To Do` (Details siehe „Callout statt Überschrift“ unten).
+   - **Erledigte Aufgaben ausblenden**: Zeigt nur ausstehende Aufgaben in der Notiz. Erledigte Aufgaben werden weiterhin im Hintergrund synchronisiert, tauchen aber nicht mehr als Zeile auf – wird eine Aufgabe später wieder geöffnet, erscheint sie beim nächsten Sync erneut.
    - **Automatisch synchronisieren**: Intervall in Minuten (0 = nur manuell).
 8. Über das Sync-Symbol in der linken Leiste, den Befehl „Jetzt mit Microsoft To Do synchronisieren“ oder den Button in den Einstellungen synchronisieren.
 
@@ -65,6 +66,23 @@ Da dieses Plugin nicht im offiziellen Community-Store ist, installierst du es am
 2. Ordner `<dein-vault>/.obsidian/plugins/todo-sync/` anlegen.
 3. `manifest.json`, `main.js` dort hineinkopieren.
 4. Obsidian neu laden, Plugin unter Community-Plugins aktivieren.
+
+## Callout statt Überschrift
+
+Die Checkliste lässt sich auch in einen Obsidian-Callout einbetten statt unter eine normale `#`-Überschrift zu stellen. Dazu bei „Überschrift“ exakt die Callout-Kopfzeile eintragen, z. B.:
+
+```
+> [!todo]- Microsoft To Do
+```
+
+(`-` = standardmäßig eingeklappt, `+` = aufgeklappt, weglassen = normal offen; der Typname in `[!...]` ist frei wählbar.) Beim nächsten Sync legt das Plugin die Zeile automatisch an und hängt die Aufgaben direkt darunter ein, z. B.:
+
+```
+> [!todo]- Microsoft To Do
+- [ ] Milch kaufen %%todo-id:AAMk...%%
+```
+
+Wichtig: Bei einem Callout endet der verwaltete Bereich an der ersten Leerzeile danach (nicht erst bei der nächsten Überschrift wie bei `#`) – das entspricht dem, wie Obsidian den Callout selbst begrenzt.
 
 ## Grenzen & Hinweise
 
