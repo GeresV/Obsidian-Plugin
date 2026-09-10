@@ -59,17 +59,26 @@ export async function pollDeviceCodeToken(
 		await sleep(interval * 1000);
 		if (isCancelled()) throw new Error("Anmeldung abgebrochen.");
 
-		const res = await requestUrl({
-			url: `${AUTH_BASE}/${tenant}/oauth2/v2.0/token`,
-			method: "POST",
-			contentType: "application/x-www-form-urlencoded",
-			body: new URLSearchParams({
-				grant_type: "urn:ietf:params:oauth:grant-type:device_code",
-				client_id: clientId,
-				device_code: deviceCode,
-			}).toString(),
-			throw: false,
-		});
+		let res;
+		try {
+			res = await requestUrl({
+				url: `${AUTH_BASE}/${tenant}/oauth2/v2.0/token`,
+				method: "POST",
+				contentType: "application/x-www-form-urlencoded",
+				body: new URLSearchParams({
+					grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+					client_id: clientId,
+					device_code: deviceCode,
+				}).toString(),
+				throw: false,
+			});
+		} catch {
+			// A thrown error here (as opposed to a non-200 response, which we asked not to throw)
+			// means the request never reached Microsoft at all - a transient connectivity hiccup,
+			// e.g. mobile network throttling while the screen is off. Not worth aborting the whole
+			// login over; just retry on the next tick like "authorization_pending" would.
+			continue;
+		}
 
 		if (res.status === 200) {
 			return toAuthTokens(res.json);
